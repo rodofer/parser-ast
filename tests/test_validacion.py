@@ -15,3 +15,12 @@ suma -= contador
     arbol = generar_arbol(codigo)
     with pytest.raises(NodoNoPermitidoError, match='línea 2'):
         revisar_nodos(arbol)
+
+def test_instruccion_no_permitida():
+    codigo = """suma = 0
+for i in range(5):
+    suma += i
+"""
+    arbol = generar_arbol(codigo)
+    with pytest.raises(NodoNoPermitidoError, match='For'):
+        revisar_nodos(arbol)
