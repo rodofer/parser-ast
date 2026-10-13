@@ -5,6 +5,10 @@ COMPARACIONES = {
     ast.Lt: operator.lt
 }
 
+OPERACIONES = {
+    ast.Add: operator.add,
+}
+
 
 def evaluar(nodo, memoria):
     match nodo:
@@ -21,6 +25,22 @@ def evaluar(nodo, memoria):
             return comparar(izquierda, derecha)
         case _:
             raise NotImplementedError(f"evaluar no implementa el nodo {type(nodo).__name__}")
+
+
+def ejecutar(nodo, memoria):
+    match nodo:
+        case ast.Assign():
+            nombre = nodo.targets[0].id
+            valor = evaluar(nodo.value, memoria)
+            memoria[nombre] = valor
+        case ast.AugAssign():
+            nombre = nodo.target.id
+            actual = memoria[nombre]
+            derecha = evaluar(nodo.value, memoria)
+            operar = OPERACIONES[type(nodo.op)]
+            memoria[nombre] = operar(actual, derecha)
+        case _:
+            raise NotImplementedError(f"ejecutar no implementa en nodo {type(nodo).__name__}")
 
 
 if __name__ == "__main__":
@@ -40,3 +60,9 @@ if __name__ == "__main__":
             evaluar(nodo, {'contador': 0})
         except NotImplementedError as e:
             print(f"Error esperado: {e}")
+
+    memoria = {}
+    for instruccion in ['contador = 0', 'suma = 0', 'contador += 1', 'suma += contador']:
+        nodo = ast.parse(instruccion).body[0]
+        ejecutar(nodo, memoria)
+        print(f"{instruccion:<20} -> {memoria}")
