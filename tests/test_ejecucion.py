@@ -1,5 +1,7 @@
 import ast
 
+import pytest
+
 from parser.construccion import leer_archivo, generar_arbol
 from parser.ejecucion import MAX_ITERACIONES, ejecutar_programa, evaluar_expresion, ejecutar_instruccion
 
@@ -31,3 +33,13 @@ while x < {MAX_ITERACIONES}:
 """
     memoria = ejecutar_programa(generar_arbol(codigo))
     assert memoria == {'x': MAX_ITERACIONES}
+
+
+def test_ciclo_supera_limite_se_detiene():
+    codigo = f"""x = 0
+while x < {MAX_ITERACIONES + 1}:
+    x += 1
+"""
+    arbol = generar_arbol(codigo)
+    with pytest.raises(RuntimeError, match='posible ciclo infinito'):
+        ejecutar_programa(arbol)
