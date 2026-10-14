@@ -7,6 +7,9 @@ evaluación de la condición de un ciclo.
 
 Referencia: `ejemplos/contador_suma.json`.
 
+**Versión del formato: 1.0.** Toda traza indica en el nivel superior la versión de
+esta especificación que cumple (`"versionFormato": "1.0"`).
+
 ## Campos comunes a todos los pasos
 
 | Campo | Tipo | Regla |
@@ -49,3 +52,10 @@ Corresponden a asignaciones (`x = ...`) y asignaciones compuestas (`x += ...`).
 
 Cada ciclo genera tantas evaluaciones como vueltas más una: la última, con
 `resultado: false`, es la que termina el ciclo.
+
+## Versionado del formato
+
+- **Cambios compatibles** (agregar campos nuevos): suben la versión menor (1.0 → 1.1).
+  Quien consuma la traza debe ignorar los campos que no conozca.
+- **Cambios incompatibles** (renombrar, mover o eliminar campos, o cambiar su significado):
+  suben la versión mayor (1.x → 2.0) y se avisan con anticipación.

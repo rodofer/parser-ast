@@ -1,5 +1,6 @@
 {
   "@context": "https://example.org/ontologia.jsonld",
+  "versionFormato": "1.0",
   "@graph": [
     {
       "@type": "PasoDeEjecucion",
