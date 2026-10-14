@@ -43,3 +43,9 @@ while x < {MAX_ITERACIONES + 1}:
     arbol = generar_arbol(codigo)
     with pytest.raises(RuntimeError, match='posible ciclo infinito'):
         ejecutar_programa(arbol)
+
+
+def test_expresion_no_implementada():
+    nodo = ast.parse('contador + 1', mode='eval').body
+    with pytest.raises(NotImplementedError, match='BinOp'):
+        evaluar_expresion(nodo, {'contador': 0})
