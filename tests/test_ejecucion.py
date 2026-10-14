@@ -22,3 +22,12 @@ def test_asignacion_compuesta_usa_valor_anterior():
     nodo = ast.parse('contador += 1').body[0]
     ejecutar_instruccion(nodo, memoria)
     assert memoria == {'contador': 5}
+
+
+def test_ciclo_en_limite_termina():
+    codigo = f"""x = 0
+while x < {MAX_ITERACIONES}:
+    x += 1
+"""
+    memoria = ejecutar_programa(generar_arbol(codigo))
+    assert memoria == {'x': MAX_ITERACIONES}
