@@ -8,6 +8,7 @@ from parser.ejecucion import (
     ejecutar_instruccion,
     ejecutar_programa,
     evaluar_expresion,
+    LimiteIteracionesError,
 )
 
 
@@ -66,7 +67,7 @@ while x < {MAX_ITERACIONES + 1}:
     x += 1
 """
     arbol = generar_arbol(codigo)
-    with pytest.raises(RuntimeError, match='posible ciclo infinito'):
+    with pytest.raises(LimiteIteracionesError, match='posible ciclo infinito'):
         ejecutar_programa(arbol)
 
 

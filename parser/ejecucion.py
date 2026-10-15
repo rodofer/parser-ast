@@ -12,6 +12,10 @@ OPERACIONES = {
 MAX_ITERACIONES = 1000
 
 
+class LimiteIteracionesError(RuntimeError):
+    pass
+
+
 def evaluar_expresion(nodo: ast.expr, memoria: dict):
     match nodo:
         case ast.Constant():
@@ -86,7 +90,7 @@ def ejecutar_instruccion(nodo: ast.stmt, memoria: dict, pasos: list,
                 if not resultado:
                     break
                 if completadas >= MAX_ITERACIONES:
-                    raise RuntimeError(f"El ciclo superó {MAX_ITERACIONES} iteraciones, posible ciclo infinito")
+                    raise LimiteIteracionesError(f"El ciclo superó {MAX_ITERACIONES} iteraciones, posible ciclo infinito")
                 completadas += 1
                 for instruccion in nodo.body:
                     ejecutar_instruccion(instruccion, memoria, pasos, bloque_ciclo, completadas)
