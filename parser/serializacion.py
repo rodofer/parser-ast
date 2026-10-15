@@ -2,7 +2,7 @@ CONTEXTO = "https://example.org/ontologia.jsonld"
 VERSION_FORMATO = "1.0"
 
 
-def generar_traza(pasos: list) -> dict:
+def serializar_traza(pasos: list) -> dict:
     grafo = []
     for numero, paso in enumerate(pasos, start=1):
         nodo = {
