@@ -23,3 +23,9 @@ def test_codigo_no_permitido_devuelve_422():
     assert respuesta.status_code == 422
     assert respuesta.json()['detail']['tipo'] == "NodoNoPermitido"
     assert 'For' in respuesta.json()['detail']['mensaje']
+
+
+def test_error_de_sintaxis_devuelve_422():
+    respuesta = cliente.post('/traza', json={'codigo': 'contador 2'})
+    assert respuesta.status_code == 422
+    assert respuesta.json()['detail']['tipo'] == "ErrorDeSintaxis"

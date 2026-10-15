@@ -21,3 +21,6 @@ def crear_traza(solicitud: SolicitudTraza) -> dict:
         return generar_traza(solicitud.codigo)
     except NodoNoPermitidoError as e:
         raise error_422("NodoNoPermitido", str(e)) from e
+    except SyntaxError as e:
+        mensaje = f"Error de sintaxis en la línea {e.lineno}, columna {e.offset}: {e.msg}"
+        raise error_422("ErrorDeSintaxis", mensaje) from e
