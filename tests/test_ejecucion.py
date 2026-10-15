@@ -3,14 +3,36 @@ import ast
 import pytest
 
 from parser.construccion import leer_archivo, generar_arbol
-from parser.ejecucion import MAX_ITERACIONES, ejecutar_programa, evaluar_expresion, ejecutar_instruccion
+from parser.ejecucion import (
+    MAX_ITERACIONES,
+    ejecutar_instruccion,
+    ejecutar_programa,
+    evaluar_expresion,
+)
 
 
 def test_contador_suma_memoria_final():
     codigo = leer_archivo('ejemplos/contador_suma.py')
     arbol = generar_arbol(codigo)
-    memoria = ejecutar_programa(arbol)
+    memoria, _ = ejecutar_programa(arbol)
     assert memoria == {'contador': 3, 'suma': 6}
+
+
+def test_contador_suma_genera_doce_pasos():
+    codigo = leer_archivo('ejemplos/contador_suma.py')
+    arbol = generar_arbol(codigo)
+    _, pasos = ejecutar_programa(arbol)
+    assert len(pasos) == 12
+
+
+def test_ultima_evaluacion_termina_el_ciclo():
+    codigo = leer_archivo('ejemplos/contador_suma.py')
+    arbol = generar_arbol(codigo)
+    _, pasos = ejecutar_programa(arbol)
+    ultimo = pasos[-1]
+    assert ultimo['tipo'] == 'evalua'
+    assert ultimo['resultado'] is False
+    assert ultimo['iteracion'] == 3
 
 
 def test_comparacion_verdadera_y_falsa():
@@ -21,9 +43,12 @@ def test_comparacion_verdadera_y_falsa():
 
 def test_asignacion_compuesta_usa_valor_anterior():
     memoria = {'contador': 4}
+    pasos = []
     nodo = ast.parse('contador += 1').body[0]
-    ejecutar_instruccion(nodo, memoria)
+    ejecutar_instruccion(nodo, memoria, pasos)
     assert memoria == {'contador': 5}
+    assert pasos[0]['valor_anterior'] == 4
+    assert pasos[0]['valor_nuevo'] == 5
 
 
 def test_ciclo_en_limite_termina():
@@ -31,7 +56,7 @@ def test_ciclo_en_limite_termina():
 while x < {MAX_ITERACIONES}:
     x += 1
 """
-    memoria = ejecutar_programa(generar_arbol(codigo))
+    memoria, _ = ejecutar_programa(generar_arbol(codigo))
     assert memoria == {'x': MAX_ITERACIONES}
 
 

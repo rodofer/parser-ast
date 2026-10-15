@@ -12,7 +12,7 @@ OPERACIONES = {
 MAX_ITERACIONES = 1000
 
 
-def evaluar_expresion(nodo, memoria):
+def evaluar_expresion(nodo: ast.expr, memoria: dict):
     match nodo:
         case ast.Constant():
             return nodo.value
@@ -29,62 +29,74 @@ def evaluar_expresion(nodo, memoria):
             raise NotImplementedError(f"evaluar_expresion no implementa el nodo {type(nodo).__name__}")
 
 
-def ejecutar_instruccion(nodo, memoria):
+def variables_leidas(expresion: ast.expr):
+    nombres = [n for n in ast.walk(expresion) if isinstance(n, ast.Name)]
+    nombres.sort(key=lambda n: (n.lineno, n.col_offset))
+    return list(dict.fromkeys(n.id for n in nombres))
+
+
+def ejecutar_instruccion(nodo: ast.stmt, memoria: dict, pasos: list,
+                         bloque: str | None = None, iteracion: int | None = None):
     match nodo:
         case ast.Assign():
             nombre = nodo.targets[0].id
-            valor = evaluar_expresion(nodo.value, memoria)
-            memoria[nombre] = valor
+            anterior = memoria.get(nombre)
+            memoria[nombre] = evaluar_expresion(nodo.value, memoria)
+            pasos.append({
+                'tipo': 'modifica',
+                'linea': nodo.lineno,
+                'bloque': bloque,
+                'iteracion': iteracion,
+                'instruccion': ast.unparse(nodo),
+                'variable': nombre,
+                'valor_anterior': anterior,
+                'valor_nuevo': memoria[nombre],
+            })
         case ast.AugAssign():
             nombre = nodo.target.id
-            actual = memoria[nombre]
+            anterior = memoria[nombre]
             derecha = evaluar_expresion(nodo.value, memoria)
             operar = OPERACIONES[type(nodo.op)]
-            memoria[nombre] = operar(actual, derecha)
+            memoria[nombre] = operar(anterior, derecha)
+            pasos.append({
+                'tipo': 'modifica',
+                'linea': nodo.lineno,
+                'bloque': bloque,
+                'iteracion': iteracion,
+                'instruccion': ast.unparse(nodo),
+                'variable': nombre,
+                'valor_anterior': anterior,
+                'valor_nuevo': memoria[nombre],
+            })
         case ast.While():
-            contador_iteraciones = 0
-            while evaluar_expresion(nodo.test, memoria):
-                if contador_iteraciones >= MAX_ITERACIONES:
+            bloque_ciclo = f"while_linea{nodo.lineno}"
+            completadas = 0
+            while True:
+                resultado = evaluar_expresion(nodo.test, memoria)
+                pasos.append({
+                    'tipo': 'evalua',
+                    'linea': nodo.lineno,
+                    'bloque': bloque_ciclo,
+                    'iteracion': completadas,
+                    'instruccion': f"evaluar {ast.unparse(nodo.test)}",
+                    'expresion': ast.unparse(nodo.test),
+                    'depende_de': variables_leidas(nodo.test),
+                    'resultado': resultado,
+                })
+                if not resultado:
+                    break
+                if completadas >= MAX_ITERACIONES:
                     raise RuntimeError(f"El ciclo superó {MAX_ITERACIONES} iteraciones, posible ciclo infinito")
-                contador_iteraciones += 1
+                completadas += 1
                 for instruccion in nodo.body:
-                    ejecutar_instruccion(instruccion, memoria)
+                    ejecutar_instruccion(instruccion, memoria, pasos, bloque_ciclo, completadas)
         case _:
             raise NotImplementedError(f"ejecutar_instruccion no implementa el nodo {type(nodo).__name__}")
 
 
-def ejecutar_programa(arbol):
+def ejecutar_programa(arbol: ast.Module):
     memoria = {}
+    pasos = []
     for instruccion in arbol.body:
-        ejecutar_instruccion(instruccion, memoria)
-    return memoria
-
-
-if __name__ == "__main__":
-    nodo = ast.parse('5', mode='eval').body
-    print(evaluar_expresion(nodo, {}))
-
-    nodo = ast.parse('contador', mode='eval').body
-    print(evaluar_expresion(nodo, {'contador': 2}))
-
-    nodo = ast.parse('contador < 3', mode='eval').body
-    print(evaluar_expresion(nodo, {'contador': 0}))
-    print(evaluar_expresion(nodo, {'contador': 3}))
-
-    for expresion in ['contador + 1', '0 < contador < 3']:
-        nodo = ast.parse(expresion, mode='eval').body
-        try:
-            evaluar_expresion(nodo, {'contador': 0})
-        except NotImplementedError as e:
-            print(f"Error esperado: {e}")
-
-    memoria = {}
-    for instruccion in ['contador = 0', 'suma = 0', 'contador += 1', 'suma += contador']:
-        nodo = ast.parse(instruccion).body[0]
-        ejecutar_instruccion(nodo, memoria)
-        print(f"{instruccion:<20} -> {memoria}")
-
-    from parser.construccion import leer_archivo, generar_arbol
-    codigo = leer_archivo('ejemplos/contador_suma.py')
-    arbol = generar_arbol(codigo)
-    print(ejecutar_programa(arbol))
+        ejecutar_instruccion(instruccion, memoria, pasos)
+    return memoria, pasos
