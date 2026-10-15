@@ -3,6 +3,7 @@ from pydantic import BaseModel
 
 from parser.pipeline import generar_traza
 from parser.validacion import NodoNoPermitidoError
+from parser.ejecucion import LimiteIteracionesError
 
 app = FastAPI(title="Parser AST del Depurador Visual Interactivo")
 
@@ -24,3 +25,5 @@ def crear_traza(solicitud: SolicitudTraza) -> dict:
     except SyntaxError as e:
         mensaje = f"Error de sintaxis en la línea {e.lineno}, columna {e.offset}: {e.msg}"
         raise error_422("ErrorDeSintaxis", mensaje) from e
+    except LimiteIteracionesError as e:
+        raise error_422("LimiteDeIteraciones", str(e)) from e

@@ -29,3 +29,15 @@ def test_error_de_sintaxis_devuelve_422():
     respuesta = cliente.post('/traza', json={'codigo': 'contador 2'})
     assert respuesta.status_code == 422
     assert respuesta.json()['detail']['tipo'] == "ErrorDeSintaxis"
+
+
+def test_ciclo_sin_fin_devuelve_422():
+    codigo = "x = 0\nwhile x < 1:\n    x += 0\n"
+    respuesta = cliente.post('/traza', json={'codigo': codigo})
+    assert respuesta.status_code == 422
+    assert respuesta.json()['detail']['tipo'] == "LimiteDeIteraciones"
+
+
+def test_peticion_sin_codigo_devuelve_422():
+    respuesta = cliente.post('/traza', json={})
+    assert respuesta.status_code == 422
