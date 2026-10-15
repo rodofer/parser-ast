@@ -5,10 +5,10 @@ import pytest
 from parser.construccion import leer_archivo, generar_arbol
 from parser.ejecucion import (
     MAX_ITERACIONES,
+    LimiteIteracionesError,
     ejecutar_instruccion,
     ejecutar_programa,
     evaluar_expresion,
-    LimiteIteracionesError,
 )
 
 
