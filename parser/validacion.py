@@ -42,15 +42,3 @@ def revisar_nodos(arbol):
             problema = revisar_reglas(hijo)
             if problema:
                 raise NodoNoPermitidoError(f"{problema} (línea {linea}).")
-
-
-if __name__ == "__main__":
-    from parser.construccion import leer_archivo, generar_arbol
-    codigo = leer_archivo('ejemplos/contador_suma.py')
-    arbol = generar_arbol(codigo)
-    try:
-        revisar_nodos(arbol)
-    except NodoNoPermitidoError as e:
-        print(f"Error: {e}")
-    else:
-        print("Código válido.")
