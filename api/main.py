@@ -1,15 +1,17 @@
 from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
+from parser.ejecucion import LimiteIteracionesError
 from parser.pipeline import generar_traza
 from parser.validacion import NodoNoPermitidoError
-from parser.ejecucion import LimiteIteracionesError
+
+MAX_LARGO_CODIGO = 5000
 
 app = FastAPI(title="Parser AST del Depurador Visual Interactivo")
 
 
 class SolicitudTraza(BaseModel):
-    codigo: str
+    codigo: str = Field(max_length=MAX_LARGO_CODIGO)
 
 
 def error_422(tipo: str, mensaje: str) -> HTTPException:
