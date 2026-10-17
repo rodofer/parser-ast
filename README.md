@@ -1,5 +1,24 @@
 # parser-ast
 
+Servicio que genera la traza de ejecución (JSON-LD) del Depurador Visual Interactivo a partir de código Python.
+
+## Instalación
+
+Requiere Python 3.10 o superior
+
+```bash
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+python -m pytest
+```
+
+## Integración
+
+- El formato de la traza está especificado en `docs/traza.md`.
+- Integrar solo vía API; no importar módulos internos.
+- Reportar dudas o problemas como issues.
+
 ## API
 
 Levantar el servidor:
