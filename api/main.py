@@ -9,7 +9,7 @@ from parser.validacion import NodoNoPermitidoError
 
 MAX_LARGO_CODIGO = 5000
 
-app = FastAPI(title="Parser AST del Depurador Visual Interactivo")
+app = FastAPI(title="Parser AST del Depurador Visual Interactivo", version="0.3.2")
 
 
 class SolicitudTraza(BaseModel):
