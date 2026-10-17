@@ -41,9 +41,11 @@ def test_ciclo_sin_fin_devuelve_422():
 def test_peticion_sin_codigo_devuelve_422():
     respuesta = cliente.post('/traza', json={})
     assert respuesta.status_code == 422
+    assert respuesta.json()['detail']['tipo'] == "SolicitudInvalida"
 
 
 def test_codigo_demasiado_largo_devuelve_422():
     codigo = "x = 0\n" * (MAX_LARGO_CODIGO // 6 + 1)
     respuesta = cliente.post('/traza', json={'codigo': codigo})
     assert respuesta.status_code == 422
+    assert respuesta.json()['detail']['tipo'] == "SolicitudInvalida"

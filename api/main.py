@@ -1,4 +1,6 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
+from fastapi.exceptions import RequestValidationError
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
 
 from parser.ejecucion import LimiteIteracionesError
@@ -16,6 +18,15 @@ class SolicitudTraza(BaseModel):
 
 def error_422(tipo: str, mensaje: str) -> HTTPException:
     return HTTPException(status_code=422, detail={"tipo": tipo, "mensaje": mensaje})
+
+
+@app.exception_handler(RequestValidationError)
+async def solicitud_invalida(request: Request, exc: RequestValidationError) -> JSONResponse:
+    mensaje = "; ".join(f"{e['loc'][-1]}: {e['msg']}" for e in exc.errors())
+    return JSONResponse(
+        status_code=422,
+        content={"detail": {"tipo": "SolicitudInvalida", "mensaje": mensaje}},
+    )
 
 
 @app.post("/traza")

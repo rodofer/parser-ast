@@ -20,5 +20,6 @@ Solicitud: `{"codigo": "<código Python>"}`
 | error de sintaxis | 422 | `ErrorDeSintaxis` |
 | construcción no soportada | 422 | `NodoNoPermitido` |
 | ciclo supera 1000 iteraciones | 422 | `LimiteDeIteraciones` |
+| solicitud mal formada (falta `codigo` o supera 5000 caracteres) | 422 | `SolicitudInvalida` |
 
 Los errores responden `{"detail": {"tipo": "...", "mensaje": "..."}}`.
