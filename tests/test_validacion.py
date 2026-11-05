@@ -12,7 +12,7 @@ def test_ejemplo_valido():
 
 def test_operador_no_permitido():
     codigo = """contador = 0
-suma -= contador
+suma //= contador
 """
     arbol = generar_arbol(codigo)
     with pytest.raises(NodoNoPermitidoError, match='línea 2'):
